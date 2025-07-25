@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Item Graph</title>
+        <style>
+            html {
+                height: 99%;
+                background-color: #000000;
+                color: #ffffff;
+            }
+            body {
+                height: 99%;
+            }
+            #network {
+                height: 99%;
+            }
+            #tooltip {
+                position: fixed;
+                width: 300px;
+                z-index: 1;
+                background-color: #222222;
+                font-family: 'Arial', serif;
+                color: #ffffff;
+                padding: 5px;
+                line-height: 1.25;
+                display: none;
+                pointer-events: none;
+            }
+            #input {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                z-index: 2;
+                padding: 5px;
+            }
+        </style>
+        <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+        <script>
+            const itemList = LoadItemList();
+            function LoadItemList() {
+                return [
+                    {
+                        "name": "Copper Scarab Figurine",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br>Mana Regeneration: +0.5<br>Agility: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Glyph of Nature",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br></span>All Attributes: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Pickaxe",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br>Mana Regeneration: +0.5<br>Strength: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Plate Shield",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br>Health: +100<br>Armor: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ring of Brilliance",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br>Mana: +100<br>Intelligence: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ritual Dagger",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br>Mana Regeneration: +0.5<br>Intelligence: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Swift Blade",
+                        "components": [],
+                        "text": `<span style="color:#00ff00">(Tier 1 Uncommon)</span><br></span>Attack Damage: +3<br>Attack Speed: +10%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Battle Hammer",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br></span>Attack Damage: +5<br>Intelligence: +2<br>Strength: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Bottomless Healing Potion",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br><span style="color:#00ffff">Item Activation:</span> Heals for <span style="color:#00ff00">250</span> Health (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Bottomless Mana Potion",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br><span style="color:#00ffff">Item Activation:</span> Restores <span style="color:#8080ff">150</span> Mana (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Crimson Amulet",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br></span>Intelligence: +4<br>Health: +50<br>Mana Regeneration: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Elven Shortbow",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Agility: +3<br>Attack Speed: +10%<br>Attack Damage: +4`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Enchanter's Robe",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br></span>Intelligence: +5<br>Health: +75`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Gloves of Precision",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Agility: +2<br>Strength: +2<br>Health: +50`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Holy Essence",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br></span>All Attributes: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Hypnotic Dust",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Health Regeneration: +1<br>Mana Regeneration: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Liferoot",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Health Regeneration: +2<br>Mana Regeneration: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Lion's Aegis",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Health: +200<br>Armor: +1<br><span style="color:#00ffff">Item Passive - Block:</span> Passively blocks 4 damage from enemy attacks`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Plate Shoulders",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Health: +175<br>Armor: +1<br>Strength: +2<br>Intelligence: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Runestone Pendant",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Health: +150<br><span style="color:#00ffff">Item Activation - Taunt:</span> Forces the closest 5 enemies to attack this target.`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shield of Light",
+                        "components": ["Plate Shield", "Holy Essence"],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br></span>All Attributes: +2<br>Health: +175<br>Armor: +2<br><span style="color:#00ffff">Item Passive - Protect:</span> Increases the armor of nearby allies by <span style="color:#ffff00">1</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Snake Gloves",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Attack Speed: +18%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "War Banner",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 1 Rare)</span><br>Attack Speed: +12%<br>Strength: +4<br>Health: +50`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Dawnrose",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br></span>Health Regeneration: +4<br>Mana Regeneration: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Drakehide Shoulderpads",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Health: +250<br>Armor: +2<br>Agility: 5`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Heavy Lance",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Attack Damage: +12<br>Strength: +8`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Horn of War",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Health: +375<br>Attack Damage: +8<br>Armor: +3<br><span style="color:#00ffff">Item Activation - Taunt:</span> Forces the closest 10 enemies to attack this target.`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Invoker's Mantle",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Intelligence: +6<br>Mana: +250`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Longsword",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Attack Damage: +18`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Magic's Shade",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Mana Regeneration: +2<br>Health: +100<br>Armor: +2<br><span style="color:#00ffff">Item Passive - Spellblock:</span> Take <span style="color:#00ff00">12%</span> Reduced Damage from abilities`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Mana Trinket",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br></span>Mana: +500<br>Mana Regeneration: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Marauder's Hammer",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Strength: +6<br>Agility: +6`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Rapid Claw",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Attack Speed: +15%<br>Damage: +5<br>Strength: +6`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Razor Gloves",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Attack Speed: +30%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Runed Arrowhead",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Agility: +7<br>Attack Speed: +10%<br>Attack Damage: +8`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shimmering Ring",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br></span>All Attributes: +3`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Spellbinder's Rod",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br></span>Health Regeneration: +2<br>Mana Regeneration: +4`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Zealot's Belt",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 2 Rare)</span><br>Intelligence: +5<br>Strength: +5`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Archmage's Rune",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Intelligence: +5<br>Mana: +700`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Assassin Claw",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Agility: +15<br>Mana: +250<br>Mana Regeneration: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Big Bamboo Stick",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Strength: +18`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Bloodletter's Charm",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Attack Damage: +27<br>Attack Speed: +15%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Bone Cudgel",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Damage: +30<br>Strength: +4<br>Agility: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Cursed Bell",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Mana Regeneration Rate: +25%<br>Health: +200<br><span style="color:#00ffff">Item Activation - Incite Madness:</span> Reduces the armor of all nearby units by <span style="color:#ffff00">12</span> and increasing their damage by <span style="color:#ff0000">35%</span> for <span style="color:#00ff00">12</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Greensprout",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>Health Regeneration: +4<br>Mana Regeneration: +8`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Pathfinder's Sabatons",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Attack Speed: +15%<br>Movement Speed: +25<br>Agility: +8<br>Strength: +6`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Pendant of Balance",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>All Attributes: +10`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Pure Bloodstone Gem",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>Health Regeneration: +8<br>Mana Regeneration: +4`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ring of Power",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>Intelligence: +12<br>Mana Regeneration: +2<br>Mana Regeneration Rate: +10%<br>Health: +100`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Spell Ward",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>Health Regeneration: +3<br>Health: +225<br><span style="color:#00ffff">Item Passive - Spellblock:</span> Take <span style="color:#00ff00">20%</span> Reduced Damage from abilities`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Steelheart Shield",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>Armor: +5<br>Health: +225<br>Health Regeneration: +5<br><span style="color:#00ffff">Item Passive - Block:</span> Passively blocks <span style="color:#00ff00">32</span> damage from enemy attacks`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Tribal Crown",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br></span>Agility: +9<br>Damage: +10<br>Health: +150<br>Health Regeneration: +3`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Veteran's Medallion",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 3 Rare)</span><br>Strength: +12<br>Health: +250<br>Armor: +1<br>Mana Regeneration: +3`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Band of Life",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Health: +300<br>Health Regeneration: +92`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Crystallized Heart",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Intelligence: +34`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Gold Locket",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Intelligence: +15<br>Strength: +12<br>Agility: +6<br>Armor: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Laceration Unguis",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Agility: +26<br>Mana: +400`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Legionnaire's Buckler",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Health: +500<br>Armor: +7`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Omensteel Axe",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Attack Damage: +112<br>All Attributes: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Reaver Gloves",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Strength: +23<br>Attack Damage: +20`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Skull Helmet",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Strength: +23<br>Armor: +5<br>Mana Regeneration: +8`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Watcher's Eye",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>All Attributes: +13`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Winged Visage",
+                        "components": [],
+                        "text": `<span style="color:#8080ff">(Tier 4 Rare)</span><br>Attack Speed: +40%<br>Movement Speed: +75<br>Attack Damage: +20<br>Agility: +9`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Armor Splitter",
+                        "components": ["Swift Blade", "Battle Hammer"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Unique Epic)</span></span><br></span>Attack Damage: +10<br>All Attributes: +2<br>Attack Speed: +15%<br><span style="color:#00ffff">Passive Orb Effect - Shred Armor:</span> Attacks reduce the target's armor by <span style="color:#ffff00">2</span> for <span style="color:#00ff00">5</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Blade Gloves",
+                        "components": ["Gloves of Precision", "Swift Blade"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Attack Speed: +15%<br>Attack Damage: +5<br>Health: +75<br>Strength: +2<br>Agility: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Book of Rebirth",
+                        "components": ["Tome of Vitality", "Liferoot"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Unique Epic)</span><br>All Attributes: +3 <br>Mana: +250<br>Health Regeneration: +2<br>Mana Regeneration: +1<br><span style="color:#00ffff">Item Passive - Rebirth:</span> After using an ability that spends mana, restore <span style="color:#00ff00">150</span> health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Captain André's Blade",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Attack Damage: +12<br>Health: +50`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Cursed Mask of Fear",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>All Attributes: +3<br>Armor: +5<br><span style="color:#00ffff">Item Passive - Cursed Aura:</span> Reduces the armor of nearby allied units by <span style="color:#ffff00">2</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Dagger of Fel",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Agility: +5<br>Intelligence: +5<br><span style="color:#00ffff">Item Activation - Blood Sacrifice:</span> Sacrifices <span style="color:#00ff00">125</span> health to restore <span style="color:#8080ff">350</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Greater Bottomless Healing Potion",
+                        "components": ["Liferoot", "Bottomless Healing Potion"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Health Regeneration: +3<br>Mana Regeneration: +1<br><span style="color:#00ffff">Item Activation:</span> Heals for <span style="color:#00ff00">500</span> Health (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Greater Bottomless Mana Potion",
+                        "components": ["Hypnotic Dust", "Bottomless Mana Potion"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Mana Regeneration: +3<br>Health Regeneration: +1<br><span style="color:#00ffff">Item Activation:</span> Restores <span style="color:#8080ff">300</span> Mana (30 Second cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Huge Glaive",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Attack Damage: +9<br>Strength: +4<br>Health: +175`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Jade Figurine",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Mana Regeneration: +2<br>Intelligence: +3<br>Agility: +3`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Knight's Medallion",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Armor: +5`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Lifebinder's Artifact",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Intelligence: +8<br>Attack Damage: -8<br>Attack Speed: -5%<br><span style="color:#00ffff">Item Activation - Preserve Life:</span> Restore <span style="color:#00ff00">150</span> health + <span style="color:#8080ff">(2 per point of Intelligence)</span> to an allied target and yourself. <br><br><span style="color:#ff0000">Can be cast on yourself for double the effect</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Lightsteel Sabre",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Attack Damage: +6<br>Attack Speed: +10%<br>Strength: +2<br>Agility: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Mana-Infused Plate Shoulders",
+                        "components": ["Plate Shoulders", "Bottomless Mana Potion"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Unique Epic)</span><br>Health: +200<br>Armor: +2<br>Strength: +3<br>Intelligence: +2<br><span style="color:#00ffff">Item Activation - Restore Mana:</span> Restores <span style="color:#8080ff">150</span> mana<br><span style="color:#00ffff">Item Passive - Mana Infusion:</span> Whenever the wielder  is attacked, it restores <span style="color:#8080ff">3</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Marius' Energised Wand",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Intelligence: +5<br><span style="color:#00ffff">Item Passive - Energized:</span> Attacks restore <span style="color:#8080ff">4</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Mask of Fear",
+                        "components": ["Cursed Mask of Fear"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>All Attributes: +8<br>Armor: +7`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Nature's Runestone",
+                        "components": ["Glyph of Nature", "Runestone Pendant"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Health: +300<br>All Stats: +2<br><span style="color:#00ffff">Item Activation - Taunt:</span> Forces the closest 10 enemies to attack this target.`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Robe of the Arcane",
+                        "components": ["Ring of Brilliance", "Enchanter's Robe"],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Unique Epic)</span><br>Intelligence: +12<br>Health: +150<br>Mana: +150<br><span style="color:#00ffff">Item Passive - Mana Aura:</span> Grants <span style="color:#8080ff">1.5</span> increased mana regeneration to nearby allies`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Staff of Energy",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Unique Epic)</span><br>Intelligence: +10<br><span style="color:#00ffff">Item Passive - Recharge:</span> After using an ability that spends mana, the wearer restores <span style="color:#8080ff">20 </span>mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Swiftstep",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Agility: +5<br>Attack Speed: +10%<br>Movement Speed: 50`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Tome of Vitality",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Unique Epic)</span><br>All Attributes: +2<br>Mana: +250<br><span style="color:#00ffff">Item Passive - Vitality:</span> After using an ability that spends mana, restore <span style="color:#00ff00">100</span> health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Trickster's Cloak",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Agility: +12<br>Damage: -12`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Vanguard Helmet",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 1 Epic)</span><br>Health: +225<br>Armor: +2<br>Health Regeneration: +2`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Air Lord's Cane",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Intelligence: +8<br>Attack Damage: +7<br><span style="color:#00ffff">Item Activation - Chain Lightning:</span> Calls forth a bolt of lightning that bounces up to <span style="color:#ff0000">3</span> times, dealing <span style="color:#ff0000">500</span> damage on the primary target. Each jump deals <span style="color:#ff0000">25%</span> less damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Amplification Orb",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span></span><br></span>Intelligence: +30<br>Attack Damage: -30`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ferocity",
+                        "components": ["War Banner", "Rapid Claw"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Attack Speed: +28%<br>Damage: +12<br>Strength: +10<br>Health: +75<br><span style="color:#00ffff">Item Passive - Carnage:</span> Attacks restore <span style="color:#00ff00">15</span> health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Fireguard",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Attack Damage: +15<br>Strength: +9`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Gloves of Fury",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Attack Speed: +20%<br>Strength: +4<br>Agility: +2<br><span style="color:#00ffff">Item Passive - Critical Strike:</span> Gives a <span style="color:#00ff00">10%</span> chance on an attack to deal <span style="color:#ff0000">150%</span> damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Golem Helmet",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Health: +350<br>Armor: +4`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Heart of the Phoenix",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span><br>Health Regeneration: +5<br><span style="color:#00ffff">Item Passive - Phoenix Fire:</span> Inflicts <span style="color:#ff0000">200</span> damage to a random nearby enemy every second`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Hero's Bottomless Healing Potion",
+                        "components": ["Dawnrose", "Greater Bottomless Healing Potion"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Health Regeneration: +8<br>Mana Regeneration: +3<br><span style="color:#00ffff">Item Activation:</span> Heals for <span style="color:#00ff00">1000</span> Health (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Hero's Bottomless Mana Potion",
+                        "components": ["Spellbinder's Rod", "Greater Bottomless Mana Potion"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Mana Regeneration: +6<br>Health Regeneration: +3<br><span style="color:#00ffff">Item Activation:</span> Restores <span style="color:#8080ff">600</span> Mana (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Mana Edge",
+                        "components": ["Longsword", "Mana Trinket"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span><br>Attack Damage: +25<br>Mana: +500<br><span style="color:#00ffff">Item Passive - Energize:</span> Attacks have a <span style="color:#00ff00">10%</span> chance to restore <span style="color:#8080ff">8%</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Obsidian Greataxe",
+                        "components": ["Armor Splitter", "Heavy Lance"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span></span><br>Attack Damage: +25<br>Attack Speed: +15%<br>All Attributes: +2<br>Strength: +8<br><span style="color:#00ffff">Item Passive - Bring It Down:</span> Your attacks deal bonus damage equal to <span style="color:#ff0000">3%</span> of your base attack damage for each point of armor the target has`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Pristine Holy Essence",
+                        "components": ["Shimmering Ring", "Holy Essence"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>All Attributes: +6`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Serrated Arrows",
+                        "components": ["Runed Arrowhead", "Longsword"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span><br>Agility: +8<br>Attack Speed: +15%<br>Attack Damage: +26<br><span style="color:#00ffff">Item Passive - Ranged Ammunition:</span> Grants a <span style="color:#00ff00">15%</span> bonus to attack damage for ranged heroes`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shellcore Hollow Points",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span></span><br>Attack Damage: +35<br>Agility: +4<br>Intelligence: +4`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shellcore Rifle",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span></span><br>Attack Damage: +40<br>Agility: +5`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Spectral Bulwark",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span><br>Health: +300<br>All Attributes: +2<br><span style="color:#00ffff">Item Passive - Evasion:</span> Grants <span style="color:#00ff00">10%</span> chance to evade an attack`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Sword of Kings",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span></span><br></span>Attack Damage: +50`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Bonesaw",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span><br>Attack Speed: +15%<br>Attack Damage: +60<br><span style="color:#00ffff">Item Passive - Double Edged:</span> The wielder of this weapon takes <span style="color:#ff0000">25</span> damage whenever they attack`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Truth Piercer",
+                        "components": ["Heavy Lance", "Zealot's Belt"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Unique Epic)</span><br>Strength: +16<br>Intelligence: +8<br>Attack Damage: +16<br><span style="color:#00ffff">Passive Orb Effect - Shred Armor:</span> Attacks reduce the target's armor by <span style="color:#ffff00">5</span> for <span style="color:#00ff00">7</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Unholy Urn",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>All Attributes: +3<br>Mana: +150<br><span style="color:#00ffff">Item Passive - Unholy Urn:</span> Nearby allied heroes restore <span style="color:#00ff00">6%</span> of their damage with attacks as health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Viper Gloves",
+                        "components": ["Snake Gloves", "Razor Gloves"],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Attack Speed: +55%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Zephyr's Tome",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 2 Epic)</span><br>Intelligence: +12<br>Attack Speed: +20%<br><span style="color:#00ffff">Item Activation - Hasten</span>: Grants an allied target <span style="color:#00ff00">25%</span> Attack Speed for <span style="color:#00ff00">15</span> seconds<br><span style="color:#00ffff">Item Passive - Intelligent</span>: Activating <span style="color:#00ffff">Hasten</span> refunds <span style="color:#8080ff">100</span> Mana if the Bearer has atleast <span style="color:#8080ff">75</span> Intelligence`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Corrupted Bloodstone Helmet",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Unique Epic)</span><br>Health: +450<br>Armor: -5<br><span style="color:#00ffff">Item Passive - Drain Lifeforce:</span> Attacks drain <span style="color:#00ff00">125</span> health from the target.<br><span style="color:#00ffff">Item Passive - Soul Corruption:</span> Reduces the health regeneration of nearby allies by <span style="color:#00ff00">24</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Crimson Guard",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Attack Damage: +50<br>Health: +600`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Dragon's Shield",
+                        "components": ["Magic's Shade", "Spell Ward"],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Health: +350<br>Armor: +3<br>Health Regeneration: +3<br>Mana Regeneration: +2<br><span style="color:#00ffff">Item Passive - Spellblock:</span> Take <span style="color:#00ff00">32%</span> Reduced Damage from abilities`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Enigma",
+                        "components": ["Steelheart Shield", "Pendant of Balance"],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>All Attributes: +10<br>Armor: +5<br>Health: +225<br>Health Regeneration: +5<br><span style="color:#00ffff">Item Passive - Block:</span> Passively blocks <span style="color:#00ff00">64</span> damage from enemy attacks`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Horn of Bloodshed",
+                        "components": ["Veteran's Medallion", "Horn of War"],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span></span><br>Health: +600<br>Strength: +15<br>Armor: +4<br>Mana Regeneration: +3<br><span style="color:#00ffff">Item Activation - Taunt:</span> Forces the closest 10 enemies to attack this target`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Indestructible",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Health: +500<br>Armor: +14`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Liquid Bloodstone",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Attack Damage: +40<br>Strength: +8<br>Agility: +8<br>Mana Regeneration: +1.5<br><span style="color:#00ffff">Passive Orb Effect - Lifesteal:</span> Attacks restore <span style="color:#00ff00">15%</span> of the damage dealt as health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Manticore Throwing Knives",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Unique Epic)</span><br>Agility: +23<br>Intelligence: +8<br><span style="color:#00ffff">Item Passive - Sting of the Manticore:</span> Attacks that hit enemies from <span style="color:#00ff00">+300</span> range has a <span style="color:#00ff00">10%</span> chance to deal additional <span style="color:#ff0000">500</span> damage + <span style="color:#00ff00">(5 damage per point of Agility)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Moonreaver",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Intelligence: +35`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Nebula Key",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Intelligence: +25<br>Health: +400<br>Mana Regeneration Rate: +35%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Oblivion Spike",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Intelligence: +20<br>Mana Regeneration: +3<br><span style="color:#00ffff">Item Activation - Pierce Soul:</span> Instantly deal <span style="color:#ff0000">400</span> damage + <span style="color:#8080ff">(3 damage per point of Intelligence)</span> to an enemy target and heal the wearer for the same amount`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Obsidian Core",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>All Attributes: +23<br>Health: -460`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Phoenix Talon",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Intelligence: +20<br>Agility: +20<br>Mana Regeneration: +4`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Purified Bloodstone Helmet",
+                        "components": ["Corrupted Bloodstone Helmet"],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Health: +450<br>Damage: +60<br>Armor: +5<br><span style="color:#00ffff">Item Passive - Purify Blood:</span> Attacks restore <span style="color:#00ff00">50</span> health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Sacred Tome",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Intelligence: +30<br>Mana Regeneration Rate: +75%<br><span style="color:#00ffff">Item Activation - Restore:</span> Instantly heal an allied target for <span style="color:#00ff00">1000</span> + <span style="color:#8080ff">(6 healing per point of Intelligence the wielder has)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Impaler",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Unique Epic)</span><br>Attack Speed: +25%<br>Strength: +20<br><span style="color:#00ffff">Item Passive - Impale:</span> Grants a <span style="color:#00ff00">20%</span> chance on attacks to impale the enemy, dealing <span style="color:#ff0000">1000</span> bonus damage <span style="color:#00ff00">(1 Second Cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "War Bell",
+                        "components": ["Cursed Bell"],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Mana Regeneration Rate: +30%<br>Health: +250<br><span style="color:#00ffff">Item Activation - Call to Arms:</span> Reduces the armor of all nearby enemy units by <span style="color:#ffff00">12</span> and increasing all allied units damage by <span style="color:#ff0000">35%</span> for <span style="color:#00ff00">12</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Warlord's Crown",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 3 Epic)</span><br>Strength: +30<br>Attack Damage: +25<br>Health: +250`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Crown of Order",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Strength: +27<br>Intelligence: +27<br>Health: +350<br>Mana: +350`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Darkfang's Fang",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Strength: +32<br>Agility: +32`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Gloves of the Mage King",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Intelligence: +50<br>Health: +500<br>Armor: +5<br><span style="color:#00ffff">Item Passive - Mage King's Ire:</span> When casting an ability theres a <span style="color:#00ff00">25%</span> chance to grant <span style="color:#00ffff">Mage King's Ire</span> causing your next attack to deal an additional <span style="color:#ff0000">500</span> damage + <span style="color:#8080ff">(10 damage per point Intelligence of the Wielder)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Greed",
+                        "components": ["Gold Locket", "Watcher's Eye"],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Unique Epic)</span><br>All Attributes: +23<br>Armor: +3<br><span style="color:#00ffff">Item Passive - Greed:</span> Every enemy killed in the Wielders vicinity has a <span style="color:#00ff00">50%</span> chance to grant double or triple the base gold`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Hallowed Skull",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Intelligence: +100<br>Mana: -1000`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Hungering Bulwark",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Health: +750<br>Armor: +17<br><span style="color:#00ffff">Item Passive - Hungering Bulwark:</span> Attacks against the wielder has a <span style="color:#00ff00">25%</span> chance to reflect <span style="color:#ff0000">100</span> damage + <span style="color:#00ff00">(1% of the Wielder's Maximum Health)</span> to the attacker`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Iaijutsu",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Agility: +30<br>Attack Damage: +50<br>Attack Speed: +10%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Royal Vestment",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Intelligence: +20<br>Strength: +15<br>Agility: +15<br>Mana: +400<br>Armor: +8`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Swampstalker's Grasp",
+                        "components": ["Assassin Claw", "Laceration Unguis"],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Epic)</span><br>Agility: +41<br>Mana: +650<br>Mana Regeneration: +5`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Weight of Thorns",
+                        "components": [],
+                        "text": `<span style="color:#ff00ff">(Tier 4 Unique Epic)</span><br>Attack Damage: +100<br>Strength: +45<br><span style="color:#00ffff">Item Passive - Painful Swing:</span> The wielder of this weapon takes <span style="color:#ff0000">4%</span> max health in damage whenever they attack`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Arcane Claw",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 1 Unique Legendary)</span><br>Intelligence: +10<br><span style="color:#00ffff">Item Activation - Arcane Barrage</span>: Fire <span style="color:#00ff00">5</span> projectiles each second at nearby random enemies, each projectile deals <span style="color:#ff0000">50</span> damage. Lasts <span style="color:#00ff00">3</span> seconds<br><span style="color:#00ffff">Item Passive - Intelligent</span>: The <span style="color:#00ffff">Arcane Barrage</span> ability receives bonus duration based on the Intelligence of the bearer.<br>Having atleast <span style="color:#8080ff">60</span> Intelligence increases the duration by <span style="color:#00ff00">2</span> seconds.<br>Having atleast <span style="color:#8080ff">100</span> Intelligence increases the duration by additional <span style="color:#00ff00">3</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Armor of Incision",
+                        "components": ["Trickster's Cloak", "Jade Figurine"],
+                        "text": `<span style="color:#d45e19">(Tier 1 Legendary)</span><br>Agility: +18<br>Damage: -18<br>Intelligence: +5<br>Mana Regeneration: +3`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Divine Sabre",
+                        "components": ["Holy Essence", "Lightsteel Sabre"],
+                        "text": `<span style="color:#d45e19">(Tier 1 Unique Legendary)</span><br>Attack Damage: +8<br>Attack Speed: +15%<br>Strength: +4<br>Agility: +4<br>Intelligence: +2<br><span style="color:#00ffff">Passive Orb Effect - Lifesteal:</span> Attacks restore <span style="color:#00ff00">10%</span> of the damage dealt as health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Doom Cleaver",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 1 Unique Legendary)</span><br>Damage: +15<br>Strength: +4<br><span style="color:#00ffff">Item Activation - Cleave</span>: Grants <span style="color:#ff0000">40%</span> cleave for <span style="color:#00ff00">12</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Juggernaut's Crusher",
+                        "components": ["Battle Hammer", "Knight's Medallion"],
+                        "text": `<span style="color:#d45e19">(Tier 1 Unique Legendary)</span><br>Attack Damage: +5<br>Intelligence: +3<br>Strength: +3<br>Armor: +5<br><span style="color:#00ffff">Item Passive - Crush:</span> Attacks deal <span style="color:#ff0000">8</span> bonus damage for each point of armor the wielder has`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Silver Tiara",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 1 Legendary)</span><br>All Attributes: +1<br>Armor: +1<br>Damage: +1<br>Mana Regeneration: +1<br>Health Regeneration: +1<br>Health: +1<br>Mana: +1<br>Attack Speed: +1%`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Staff of Brilliance",
+                        "components": ["Crimson Amulet", "Staff of Energy"],
+                        "text": `<span style="color:#d45e19">(Tier 1 Unique Legendary)</span><br>Intelligence: +15<br>Mana Regeneration: +2<br>Health: +100<br><span style="color:#00ffff">Item Passive - Recharge:</span> After using an ability that spends mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Swiftshot",
+                        "components": ["Elven Shortbow", "Swiftstep"],
+                        "text": `<span style="color:#d45e19">(Tier 1 Legendary)</span><br>Attack Speed: +30%<br>Agility: +9<br>Attack Damage: +7<br>Movement Speed: +50`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Angelic Faceguard",
+                        "components": ["Vanguard Helmet", "Pristine Holy Essence"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Health: +600<br>All Attributes: +9<br>Armor: +7<br><span style="color:#00ffff">Item Passive - Guardian Angel:</span> Being struck while below <span style="color:#00ff00">20%</span> health restores <span style="color:#00ff00">1250</span> health <span style="color:#00ff00">(180 Second Cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Beast Within",
+                        "components": ["The Bonesaw", "Ferocity"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span></span><br>Attack Speed: +40%<br>Damage: +75<br>Strength: +10<br>Health: +150<br><span style="color:#00ffff">Item Passive - Fury:</span> The wielder of this weapon takes <span style="color:#ff0000">10</span> damage whenever they attack`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Bounty Hunter's Garb",
+                        "components": ["Gloves of Fury", "Drakehide Shoulderpads"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span></span><br>Attack Speed: +30%<br>Strength: +10<br>Agility: +10<br>Armor: +4<br><span style="color:#00ffff">Item Passive - Critical Strike:</span> Gives a <span style="color:#00ff00">10%</span> chance on an attack to deal <span style="color:#ff0000">200%</span> damage.<br><span style="color:#00ffff">Item Passive - Bounty Gold:</span> Gain double the base gold from units you kill`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Burning Spider Chitin",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Health: +300<br>Strength: +8<br>Intelligence: +5<br><span style="color:#00ffff">Item Passive - Reflect:</span> Being struck reflects <span style="color:#ff0000">16</span> damage + <span style="color:#ff0000">(1 damage per point of Strength)</span> back to the attacker`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Cane of the Beastlord",
+                        "components": ["Zealot's Belt", "Amplification Orb"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Intelligence: +35<br>Attack Damage: -35<br>Strength: +10<br>Mana Regeneration: +4<br><span style="color:#00ffff">Item Passive - Beast Unleashed:</span> Theres a <span style="color:#00ff00">20%</span> chance when casting an ability that spends mana to summon a random beast for <span style="color:#00ff00">30</span> seconds. The beast scales based on the Intelligence of the Wielder.<br><span style="color:#00ffff">Item Activation - Stampede:</span> Summon <span style="color:#00ff00">1 - 2</span> random Beasts`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Codex of Eternal Life",
+                        "components": ["Book of Rebirth", "Pendant of Balance"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>All Attributes: +15 <br>Mana: +400<br>Health Regeneration: +5<br>Mana Regeneration: +5<br><span style="color:#00ffff">Item Passive - Eternal Life:</span> After using an ability that spends mana, restore <span style="color:#00ff00">200</span> health + <span style="color:#8080ff">(</span><span style="color:#7986f1">1</span><span style="color:#728de3"> </span><span style="color:#6b94d5">h</span><span style="color:#649bc7">e</span><span style="color:#5da2b9">a</span><span style="color:#55aaaa">l</span><span style="color:#4eb19c">t</span><span style="color:#47b88e">h</span><span style="color:#40bf80"> </span><span style="color:#39c572">p</span><span style="color:#32cc64">e</span><span style="color:#2bd455">r</span><span style="color:#24db47"> </span><span style="color:#1de239">p</span><span style="color:#16e92b">o</span><span style="color:#0ff01d">i</span><span style="color:#08f70f">n</span><span style="color:#00fe00">t</span><span style="color:#00ff00"> </span><span style="color:#08f600">o</span><span style="color:#12ec00">f</span><span style="color:#1ce200"> </span><span style="color:#26d800">y</span><span style="color:#30ce00">o</span><span style="color:#39c500">u</span><span style="color:#43bb00">r</span><span style="color:#4db100"> </span><span style="color:#57a700">h</span><span style="color:#619d00">i</span><span style="color:#6a9400">g</span><span style="color:#748a00">h</span><span style="color:#7e8000">e</span><span style="color:#887600">s</span><span style="color:#926c00">t</span><span style="color:#9b6300"> </span><span style="color:#a55900">a</span><span style="color:#af4f00">t</span><span style="color:#b94500">t</span><span style="color:#c33b00">r</span><span style="color:#cc3200">i</span><span style="color:#d62800">b</span><span style="color:#e01e00">u</span><span style="color:#ea1400">t</span><span style="color:#f40a00">e</span><span style="color:#fe0000">)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Crystal of Unleashed Power",
+                        "components": ["Fan of Endless Flow", "Mana Edge"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span></span><br>Mana: +500<br></span>Intelligence: +10<br>Damage: +25<br>Mana Regeneration: +4<br>Mana Regeneration Rate: +50%<br>Health: +250<br></span><span style="color:#00ffff">Item Passive - Power Unleashed:</span> Deal <span style="color:#8080ff">8%</span> of your maximum mana as bonus damage on attacks<br><span style="color:#00ffff">Item Passive - Energize:</span> Attacks have a <span style="color:#00ff00">10%</span> chance to restore <span style="color:#8080ff">8%</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Doom Visage",
+                        "components": ["Mask of Fear", "Pendant of Balance"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>All Attributes: +15<br>Armor: +8<br><span style="color:#00ffff">Item Passive - Cursed Aura:</span> Reduces the armor of nearby enemy units by <span style="color:#ffff00">12</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Essence of Lightning",
+                        "components": ["Invoker's Mantle", "Air Lord's Cane"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span></span><br>Intelligence: +18<br>Attack Damage: +15<br>Mana: +350<br><span style="color:#00ffff">Item Activation - Chain Lightning</span>: Calls forth a bolt of lightning that bounces up to <span style="color:#00ff00">8</span> times, dealing <span style="color:#ff0000">1000</span> damage on the primary target. Each jump deals <span style="color:#ff0000">10%</span> less damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Fan of Endless Flow",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br></span>Intelligence: +10<br>Mana Regeneration: +4<br>Mana Regeneration Rate: +50%<br>Health: +250`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Gloves of the First Flame",
+                        "components": ["Fireguard", "Heart of the Phoenix"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span></span><br>Attack Damage: +15<br>Strength: +20<br>Health Regeneration: +8<br><span style="color:#00ffff">Item Passive - Immolation Aura</span>: Deals <span style="color:#ff0000">180</span> damage to all nearby enemies every second`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Heart of the Goddess",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>Mana: +1000<br><span style="color:#00ffff">Item Passive - Purity:</span> When casting an ability, restore health equal to <span style="color:#8080ff">150%</span> of it's mana cost`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Morax' Soul Gem",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Intelligence: +35<br><span style="color:#00ffff">Item Passive - Release Morax:</span> Using an ability that spends mana releases Morax, upon being released he feeds on <span style="color:#00ff00">20%</span> of the wielder's current health and increases his health and damage by <span style="color:#00ff00">50%</span> of the consumed health. Morax scales based on the Intelligence of the Wielder <span style="color:#00ff00">(90 Seconds Cooldown)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Obsidian Bow",
+                        "components": ["Serrated Arrows", "Armor Splitter"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span></span><br>Attack Damage: +42<br>Attack Speed: +30%<br>All Attributes: +2<br>Agility: +8<br><span style="color:#00ffff">Item Passive - Obsidian Arrows:</span> Grants a <span style="color:#00ff00">+25%</span> bonus to attack damage for ranged Heroes.<br><span style="color:#00ffff">Item Passive - Bring It Down:</span> Your attacks deal bonus damage equal to <span style="color:#ff0000">3%</span> of your base attack damage for each point of armor the target has`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Phantom Piercer",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>Agility: +20<br>Attack Speed: +45%<br>Attack Damage: +35<br>Movement Speed: +50<br><span style="color:#00ffff">Item Passive - Precision:</span> Attacks that hit enemies from <span style="color:#00ff00">+300</span> range deals <span style="color:#00ff00">80%</span> increased base damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Relic Hunter",
+                        "components": ["Sword of Kings", "Gloves of Fury"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>Attack Damage: +50<br>Attack Speed: +20%<br>Strength: +5<br>Agility: +5<br><span style="color:#00ffff">Item Passive - Critical Strike:</span> Gives a <span style="color:#00ff00">10%</span> chance on an attack to deal <span style="color:#ff0000">200%</span> damage<br><span style="color:#00ffff">Item Passive - Relic Hunting:</span> Enemies killed by the wielder of this weapon have a small chance of dropping <span style="color:#008080">Veiled Equipment</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shadowstalker's Cloak",
+                        "components": ["Armor of Incision", "Drakehide Shoulderpads"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Agility: +23<br>Intelligence: +5<br>Health: +250<br>Armor: +2<br>Mana Regeneration: +3<br><span style="color:#00ffff">Item Passive - Harvest Shadows:</span> Attacks restore <span style="color:#8080ff">Mana</span> equal to <span style="color:#00ff00">10%</span> of the Wielder's Agility`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shellcore Blaster",
+                        "components": ["Shellcore Hollow Points", "Shellcore Rifle"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>Attack Damage: +100<br>Agility: +15<br>Intelligence: +5<br><span style="color:#00ffff">Item Activation - Snipe:</span> Instantly blast an enemy target and its nearby allies for <span style="color:#ff0000">250</span> damage + <span style="color:#00ff00">(5 bonus damage per point of Agility)</span> this also stuns the primary target for <span style="color:#00ff00">2</span> seconds.`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Sickle of Corrosion",
+                        "components": ["Truth Piercer", "Heart of the Phoenix"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Strength: +16<br>Intelligence: +8<br>Attack Damage: +16<br>Health Regeneration: +5<br><span style="color:#00ffff">Passive Orb Effect - Sickle of Corrosion:</span> Attacks reduce the target's armor by <span style="color:#ffff00">9</span> for <span style="color:#00ff00">7</span> seconds and deals <span style="color:#ff0000">420</span> damage over the duration`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Skull of Cerbestriasz",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Intelligence: +13<br>Agility: +13<br>Strength: +9<br>Health: +600<br>Mana: +500<br><span style="color:#00ffff">Item Activation - Cerbestriasz's Breath</span>: Breathe cold fire in a cone dealing <span style="color:#ff0000">1000</span> damage to all enemies hit`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Spear of Hate",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br></span>Agility: +18<br>Attack Speed: -10%<br><span style="color:#00ffff">Item Passive - Heartpierce:</span> Attacks deal <span style="color:#ff0000">10</span> bonus damage + <span style="color:#00ff00">(1 damage per point of Agility the Wielder has)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Tempest Fist",
+                        "components": ["Viper Gloves", "Zephyr's Tome"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span></span><br>Attack Speed: +70%<br>Intelligence: +30<br>Agility: +15<br><span style="color:#00ffff">Item Activation - Haste Aura</span>: Casts an aura that increases the Attack and Movement Speed of all nearby allies by <span style="color:#00ff00">25%</span> for <span style="color:#00ff00">12</span> seconds<br><span style="color:#00ffff">Item Passive - Intelligent</span>: Activating <span style="color:#00ffff">Haste Aura</span> refunds <span style="color:#8080ff">100</span> Mana if the Bearer has atleast <span style="color:#8080ff">75</span> Intelligence`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Peacekeeper",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br></span>Strength: +20<br>Armor: +1`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Plunderer's Persuasion",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>Strength: +12<br>Agility: +12<br><span style="color:#00ffff">Item Passive - The Plunderer's Persuasion:</span> Enemies killed by the wielder of this weapon have a small chance of dropping <span style="color:#00ff00">Random Loot</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Wall",
+                        "components": ["Shield of Light", "Spectral Bulwark"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>All Attributes: +6<br>Health: +600<br>Armor: +3<br><span style="color:#00ffff">Item Passive - Armor Aura:</span> Increases the armor of nearby allies by <span style="color:#ffff00">3</span><br><span style="color:#00ffff">Item Passive - Evasion:</span> Grants <span style="color:#00ff00">10%</span> chance to evade an attack`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Tools of the Architect",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Legendary)</span><br>All Attributes: +15<br><span style="color:#00ffff">Item Passive - Bash:</span> Attacks have a <span style="color:#00ff00">5%</span> chance on hit to deal <span style="color:#ff0000">250</span> bonus damage and stun the target for <span style="color:#00ff00">1</span> second.<br><span style="color:#00ffff">Item Passive - Valuable:</span> This item sells for <span style="color:#ffff00">2500</span> gold`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Torch of Hell",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br></span>Intelligence: +8<br>Mana Regeneration: +2<br>Health: +175<br><span style="color:#00ffff">Item Activation - Dark Ritual:</span> Sacrifice <span style="color:#ff0000">150</span> health to summon a beast for <span style="color:#00ff00">60</span> seconds that has <span style="color:#00ff00">500</span> health + <span style="color:#8080ff">(10 health per point of Intelligence)</span> and deals <span style="color:#ff0000">20</span> damage + <span style="color:#8080ff">(1 damage per point of Intelligence)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Touch of Midas",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>All Attributes: +8<br>Armor: +5<br><span style="color:#00ffff">Item Passive - Touch of Midas:</span> Every <span style="color:#00ff00">12</span> seconds your next attack deals bonus damage equal to gold carried. Up to a maximum of <span style="color:#ff0000">3000</span> bonus damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Zealous",
+                        "components": ["Mana Trinket", "Mana-Infused Plate Shoulders"],
+                        "text": `<span style="color:#d45e19">(Tier 2 Unique Legendary)</span><br>Health: +300<br>Mana: +500<br>Armor: +2<br>Strength: +5<br>Intelligence: +5<br><span style="color:#00ffff">Item Activation - Restore Mana:</span> Restores <span style="color:#8080ff">150</span> mana<br><span style="color:#00ffff">Item Passive - Zealous:</span> Being struck has a <span style="color:#00ff00">10%</span> chance to restore <span style="color:#8080ff">100</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ancient Dragon Eye",
+                        "components": ["Skull of Cerbestriasz"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span><br>All Attributes: +20<br>Health: +700<br>Mana: +700<br><span style="color:#00ffff">Item Activation - Ancient Dragon's Breath</span>: Breathe fire in a cone dealing <span style="color:#ff0000">3000</span> damage to all enemies hit`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Aneyashhek, Staff of Life",
+                        "components": ["Moonreaver", "Greensprout"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Unique Legendary)</span><br>Intelligence: +40<br></span>Health Regeneration: +12<br>Mana Regeneration: +16<br><span style="color:#00ffff">Item Passive - Gift of Life:</span> Casting an ability that spends mana, restores <span style="color:#00ff00">200</span> health + <span style="color:#8080ff">(2 health per point of the Wielder's Intelligece)</span> to a random nearby ally <span style="color:#ff0000">(Cannnot target the Wielder)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Centurion's Mask",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span></span><br>Strength: +15<br>Agility: +15<br>Armor: +8<br>Health: +500<br><span style="color:#00ffff">Item Activation - Centurion's Fury:</span> Grants <span style="color:#ff0000">100</span> Attack Damage + <span style="color:#00ff00">30% </span>increased attack and movement speed for <span style="color:#00ff00">20</span> seconds, but damage taken is increased by <span style="color:#ff0000">25%</span> for the duration.`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Champion's Bottomless Healing Potion",
+                        "components": ["Pure Bloodstone Gem", "Hero's Bottomless Healing Potion"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span><br>Health Regeneration: +16<br>Mana Regeneration: +8<br><span style="color:#00ffff">Item Activation:</span> Heals for <span style="color:#00ff00">2000</span> Health (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Champion's Bottomless Mana Potion",
+                        "components": ["Greensprout", "Hero's Bottomless Mana Potion"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span></span><br>Mana Regeneration: +12<br>Health Regeneration: +6<br><span style="color:#00ffff">Item Activation:</span> Restores <span style="color:#8080ff">1200</span> Mana (30 Seconds cooldown)`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Divine Bell",
+                        "components": ["Pristine Holy Essence", "War Bell"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span><br>All Attributes: +10<br>Mana Regeneration Rate: +35%<br>Health: +300<br><span style="color:#00ffff">Item Activation - Divine Reckoning:</span> Instantly restore <span style="color:#80ff80">600</span> Health and Mana to all nearby allies and increase their damage by <span style="color:#ff0000">35%</span> for <span style="color:#00ff00">12</span> seconds, additionally reduce the armor of nearby enemies by <span style="color:#ffff00">12</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Embrace of the Void",
+                        "components": ["Dragon's Shield", "Champion's Bottomless Healing Potion"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Unique Legendary)</span><br>Health: +350<br>Armor: +3<br>Health Regeneration: +24<br>Mana Regeneration: +12<br><span style="color:#00ffff">Item Passive - Spellblock:</span> Take <span style="color:#00ff00">32%</span> Reduced Damage from abilities.<br><span style="color:#00ffff">Item Passive - Void Barrier:</span> Attacks against the wielder has a <span style="color:#00ff00">5%</span> chance to grant <span style="color:#00ffff">Void Barrier</span> for <span style="color:#00ff00">12</span> seconds. <span style="color:#00ffff">Void Barrier</span> grants <span style="color:#ffff00">15</span> bonus armor and causes the wielder's active abilities to restore <span style="color:#00ff00">6%</span> maximum health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Equilibrium",
+                        "components": ["Archmage's Rune", "Sacred Tome"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span></span><br>Intelligence: +40<br>Mana Regeneration Rate: +75%<br>Mana: +700<br><span style="color:#00ffff">Item Passive - Equilibrium Aura</span>: Grants nearby allied units <span style="color:#8080ff">15</span> Mana Regeneration<br><span style="color:#00ffff">Item Activation - Restore:</span> Instantly heal an allied target for <span style="color:#00ff00">1000</span> + <span style="color:#8080ff">(6 healing per point of Intelligence the wielder has)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Gaze of the Abyss",
+                        "components": ["Pendant of Balance", "Oblivion Spike"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Unique Legendary)</span></span><br>Intelligence: +20<br>All Attributes: +10<br>Mana Regeneration: +5<br><span style="color:#00ffff">Item Passive - Gaze of the Abyss:</span> Every <span style="color:#00ff00">12</span> Seconds your next ability restores <span style="color:#00ff00">400</span> health + <span style="color:#8080ff">(5 healing per point of Intelligence)</span> If the target of the ability is an enemy, deal the healing as damage to the target`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Mana Core",
+                        "components": ["Ring of Power", "Champion's Bottomless Mana Potion"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Unique Legendary)</span></span><br>Intelligence: +15<br>Mana Regeneration: +20<br>Mana Regeneration Rate: +25%<br>Health Regeneration: +8<br>Health: +150<br><span style="color:#00ffff">Item Passive - Mana Recharge:</span> After using an ability that spends mana, the wielder restores <span style="color:#8080ff">100</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Scales of the Deep",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span><br>Agility: +45<br>Mana: +1000`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Scepter of Power",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span></span><br>Intelligence: +40<br><span style="color:#00ffff">Item Activation - Draw Power:</span> Grants <span style="color:#8080ff">+50</span> Intelligence for <span style="color:#00ff00">20</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Shieldmaiden",
+                        "components": ["Warlord's Crown", "Horn of Bloodshed"],
+                        "text": `<span style="color:#d45e19">(Tier 3 Legendary)</span></span><br>Attack Damage: +30<br>Strength: +45<br>Health: +600<br>Armor: +7<br>Mana Regeneration: +5<br><span style="color:#00ffff">Item Activation - Taunt:</span> Forces the closest 10 enemies to attack this target.<br><span style="color:#00ffff">Item Passive - Valkyrie's Chosen:</span> For each enemy taunted restore <span style="color:#00ff00">2%</span> maximum health`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Trident of Wrath",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 3 Unique Legendary)</span><br>Agility: +23<br>Strength: +18<br><span style="color:#00ffff">Item Passive - Wrath:</span> Whenever an allied hero dies, gain <span style="color:#00ff00">75%</span> increased attack and movement speed for <span style="color:#00ff00">30</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Bert's Legacy",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 4 Legendary)</span><br>Attack Damage: +200<br><br><span style="color:#955d8b">"An ancient mastercrafted sword, though it's spectral appearance, it can still be held. The tip of the sword seems to be broken, as if a piece of it was missing. Maybe it could be restored somehow?"</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Deathstalker",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span><br>Damage: +75<br>Strength: +24<br>Agility: +17<br><span style="color:#00ffff">Item Passive - Deathblow:</span> Attacks against enemies below <span style="color:#00ff00">35%</span> health deal <span style="color:#ff0000">double damage</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Dream Band",
+                        "components": ["Band of Life", "Royal Vestment"],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span><br>All Attributes: +23<br>Mana: +400<br>Armor: +8<br><span style="color:#00ffff">Item Passive - The Dream:</span> Increases the health regeneration of nearby allies by <span style="color:#00ff00">128</span> and also grants them <span style="color:#00ff00">25</span> bonus movement speed`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Flail of the Red Mist",
+                        "components": ["Reaver Gloves", "Weight of Thorns"],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span><br>Attack Damage: +150<br>Strength: +70<br><span style="color:#00ffff">Item Passive - Painful Swing:</span> The wielder of this weapon takes <span style="color:#ff0000">4%</span> max health in damage whenever they attack<br><span style="color:#00ffff">Item Passive - Red Mist:</span> If the wielder of this weapon has <span style="color:#ff0000">Strength</span> as its highest attribute, inflict the damage of <span style="color:#00ffff">Painful Swing</span> to the target aswell`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ghost Lotus",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span><br>Agility: +50<br><span style="color:#00ffff">Item Passive - Realm Shift:</span> Theres a <span style="color:#00ff00">25%</span> chance when casting an ability to gain <span style="color:#00ffff">Realm Shift</span>, granting <span style="color:#00ff00">50%</span> Evasion and <span style="color:#00ff00">25%</span> Crit Chance for <span style="color:#00ff00">10</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Insatiable Nemesis",
+                        "components": ["Legionnaire's Buckler", "Hungering Bulwark"],
+                        "text": `<span style="color:#d45e19">(Tier 4 Legendary)</span><br>Health: +1250<br>Armor: +27<br><span style="color:#00ffff">Item Passive - Insatiable Nemesis:</span> Attacks against the wielder has a <span style="color:#00ff00">25%</span> chance to drain <span style="color:#00ff00">150</span> health + <span style="color:#00ff00">(2% of the Wielder's Maximum Health)</span> from the attacker`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Sight of Beyond",
+                        "components": ["Crystallized Heart", "Hallowed Skull"],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span></span><br>Intelligence: +150<br><span style="color:#00ffff">Item Passive - Call From Beyond:</span> When using an ability that cost mana theres a <span style="color:#00ff00">25%</span> chance to call up to <span style="color:#00ff00">5</span> fangarms at the location of nearby enemies. The fangarms deal <span style="color:#ff0000">300</span> damage + <span style="color:#8080ff">(2 damage per point of Intelligence of the Wielder)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Spectral Sword Piece",
+                        "components": [],
+                        "text": `<span style="color:#d45e19">(Tier 4 Legendary)</span><br>Attack Damage: +200`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Ghostclaw",
+                        "components": ["Bert's Legacy", "Spectral Sword Piece"],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span><br>Attack Damage: +400<br><span style="color:#00ffff">Item Passive - Spectral:</span> Grants <span style="color:#00ff00">10%</span> chance to evade an attack<br><span style="color:#00ffff">Item Passive - Siphon Life:</span> Attacks have a <span style="color:#00ff00">12%</span> chance to steal <span style="color:#00ff00">500</span> health from the target`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Vision of the God King",
+                        "components": ["Crown of Order", "Gloves of the Mage King"],
+                        "text": `<span style="color:#d45e19">(Tier 4 Unique Legendary)</span></span><br>Intelligence: +80<br>Strength: +30<br>Health: +850<br>Mana: +350<br>Armor: +5<br><span style="color:#00ffff">Item Passive - God King's Will:</span> When casting an ability theres a <span style="color:#00ff00">25%</span> chance to grant <span style="color:#00ffff">God King's Will</span> causing your next attack to deal an additional <span style="color:#ff0000">750</span> damage + <span style="color:#8080ff">(15 damage per point Intelligence of the Wielder)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Corpse Carnage",
+                        "components": ["Ferocity", "Doom Cleaver", "Fireguard"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span></span><br>Attack Speed: +30%<br>Damage: +50<br>Strength: +26<br>Health: +150<br><span style="color:#00ffff">Item Passive - Cleave:</span> Attacks Cleave for <span style="color:#00ff00">25%</span> damage<br><span style="color:#00ffff">Item Passive - Carnage:</span> Attacks restore <span style="color:#00ff00">28</span> health - Killing an enemy restores <span style="color:#00ff00">375</span> health<br><br><span style="color:#955d8b">"In the land of the pigs, the butcher is king"</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Cryptdweller's Thirst",
+                        "components": ["Unholy Urn", "Bone Cudgel", "Amplification Orb"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span><br>All Attributes: +15<br>Intelligence: +30<br>Mana: +250<br>Mana Regeneration: +3<br><span style="color:#00ffff">Item Passive - Cryptdweller's Thirst:</span> Nearby allied heroes restore <span style="color:#00ff00">10%</span> of their damage with attacks as health.<br><span style="color:#00ffff">Item Passive - Endless Thirst:</span> Enemies slain by Heroes affected by <span style="color:#00ffff">Cryptdweller's Thirst</span> has a chance to drop <span style="color:#ff0000">Bloodshards</span> - Collecting <span style="color:#00ff00">30</span> <span style="color:#ff0000">Bloodshards</span> Increases the effect of <span style="color:#00ffff">Cryptdweller's Thirst</span> by <span style="color:#00ff00">8%</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Demonbane",
+                        "components": ["Gloves of the First Flame", "The Peacekeeper", "Drakehide Shoulderpads"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span><br>Strength: +40<br>Agility: +5<br>Armor: +7<br>Health: +250<br>Health Regeneration: +12<br><span style="color:#00ffff">Item Passive - Demonbane Aura</span>: Deals <span style="color:#ff0000">200</span> damage + <span style="color:#ffff00">5</span> damage per point of the wielder's <span style="color:#ffff00">Armor</span> to all nearby enemies every second. The wielder heals for <span style="color:#00ff00">10%</span> of this damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Fury of the Goddess",
+                        "components": [],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span></span><br>All Attributes: +35<br><span style="color:#00ffff">Item Passive - Devotion:</span> The <span style="color:#00ffff">Fury of the Goddess</span> passive can trigger in the following ways depending on your highest attribute:<br><span style="color:#ff0000">Strength:</span> Being struck <span style="color:#00ff00">25</span> times<br><span style="color:#00ff00">Agility:</span> Attacking <span style="color:#00ff00">50</span> times<br><span style="color:#8080ff">Intelligence:</span> Spending <span style="color:#8080ff">1000</span> mana<br><span style="color:#00ffff">Item Passive - Fury of the Goddess:</span> Unleash a wave of fury in the Wielders direction, dealing <span style="color:#ff0000">1000</span> damage + <span style="color:#8080ff">(</span><span style="color:#7a85f4">1</span><span style="color:#748be8">0</span><span style="color:#6f90dd"> </span><span style="color:#6996d1">d</span><span style="color:#639cc6">a</span><span style="color:#5da2ba">m</span><span style="color:#57a8ae">a</span><span style="color:#52ada3">g</span><span style="color:#4cb397">e</span><span style="color:#46b98c"> </span><span style="color:#40bf80">p</span><span style="color:#3ac474">e</span><span style="color:#35ca69">r</span><span style="color:#2fd05d"> </span><span style="color:#29d552">p</span><span style="color:#23db46">o</span><span style="color:#1de13a">i</span><span style="color:#18e72f">n</span><span style="color:#12ed23">t</span><span style="color:#0cf218"> </span><span style="color:#06f80c">o</span><span style="color:#00fe00">f</span> <span style="color:#00ff00">t</span><span style="color:#07f700">h</span><span style="color:#0fef00">e</span><span style="color:#17e700"> </span><span style="color:#1fdf00">W</span><span style="color:#28d600">i</span><span style="color:#30ce00">e</span><span style="color:#38c600">l</span><span style="color:#40be00">d</span><span style="color:#49b500">e</span><span style="color:#51ad00">r</span><span style="color:#59a500">'</span><span style="color:#619d00">s</span><span style="color:#699500"> </span><span style="color:#728c00">h</span><span style="color:#7a8400">i</span><span style="color:#827c00">g</span><span style="color:#8a7400">h</span><span style="color:#936b00">e</span><span style="color:#9b6300">s</span><span style="color:#a35b00">t</span><span style="color:#ab5300"> </span><span style="color:#b34b00">a</span><span style="color:#bc4200">t</span><span style="color:#c43a00">t</span><span style="color:#cc3200">r</span><span style="color:#d42a00">i</span><span style="color:#dd2100">b</span><span style="color:#e51900">u</span><span style="color:#ed1100">t</span><span style="color:#f50900">e</span><span style="color:#fe0000">)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Interfector Malorum",
+                        "components": ["Divine Sabre", "Sword of Kings", "Pristine Holy Essence"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span><br>Attack Damage: +75<br>Attack Speed: +25%<br>Strength: +12<br>Agility: +12<br>Intelligence: +8<br><span style="color:#00ffff">Passive Orb Effect - Lifesteal:</span> Attacks restore <span style="color:#00ff00">15%</span> of the damage dealt as health<br><span style="color:#00ffff">Item Activation - Purge Evil:</span> Deals <span style="color:#ff0000">600</span> damage to all nearby enemies, if only one enemy target is present deal <span style="color:#ff0000">2400</span> damage instead. This effect also grants <span style="color:#00ff00">25%</span> increased attack speed for <span style="color:#00ff00">16</span> seconds`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Omniscience",
+                        "components": ["Robe of the Arcane", "Shield of Light", "Zephyr's Tome"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span><br>All Attributes: +5<br>Intelligence: +25<br>Health: +350<br>Mana: +200<br><span style="color:#00ffff">Item Passive - Omniscience Aura:</span> Grants nearby allied units <span style="color:#8080ff">5</span> Increased Mana Regeneration, <span style="color:#ffff00">3</span> Bonus Armor and <span style="color:#00ff00">15%</span> Increased Attack Speed<br><span style="color:#00ffff">Item Passive - Celestial Knowledge:</span> Upon gaining a level, the wielder gains an additional <span style="color:#8080ff">+3</span> Intelligence and <span style="color:#00ff00">+400</span> bonus Experience`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Sol, Light's Birthright",
+                        "components": ["Angelic Faceguard", "Zealous", "Pristine Holy Essence"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span><br>Health: +1100<br>Mana: +600<br>All Attributes: +15<br>Armor: +12<br><span style="color:#00ffff">Item Passive - Light's Birthright:</span> Nearby allies restore <span style="color:#00ff00">1%</span> of their max health each second.<br><span style="color:#00ffff">Item Passive - Guardian Angel:</span> Allies affected by <span style="color:#00ffff">Light's Birthright</span> restore <span style="color:#00ff00">1250</span> health when they take damage while below <span style="color:#00ff00">20%</span> health <span style="color:#00ff00">(180 Second Cooldown)</span><br><span style="color:#00ffff">Item Passive - Zealous:</span> Being struck has a <span style="color:#00ff00">10%</span> chance to restore <span style="color:#8080ff">200</span> mana`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Stormbringer, Unending Fury",
+                        "components": ["Marauder's Hammer", "Tempest Fist", "Essence of Lightning"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span><br>Attack Speed: +80%<br>Intelligence: +45<br>Agility: +20<br>Strength: +10<br>Attack Damage: +30<br>Mana: +350<br><span style="color:#00ffff">Item Passive - Chain Lightning</span>: Grants a <span style="color:#00ff00">10%</span> chance on attacks to call forth a bolt of lightning that bounces up to <span style="color:#00ff00">8</span> times, dealing <span style="color:#ff0000">1000</span> damage on the primary target. Each jump deals <span style="color:#ff0000">10% </span>less damage<br><span style="color:#00ffff">Item Activation - Haste Aura</span>: Casts an aura that increases the Attack and Movement Speed of all nearby allies by <span style="color:#00ff00">25%</span> for <span style="color:#00ff00">12</span> seconds<br><span style="color:#00ffff">Item Passive - Intelligent</span>: Activating <span style="color:#00ffff">Haste Aura</span> refunds <span style="color:#8080ff">100</span> Mana if the Wielder has atleast <span style="color:#8080ff">75</span> Intelligence`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Eye of the Storm",
+                        "components": ["Amplification Orb", "Essence of Lightning"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span><br>Intelligence: +50<br>Mana: +500<br>Damage: -30<br><span style="color:#00ffff">Item Passive - Knowledgeable:</span> If the wielder of this item has atleast <span style="color:#8080ff">150</span> Intelligence. <span style="color:#00ffff">The Eye of the Storm</span> passive can trigger.<br><span style="color:#00ffff">Item Passive - The Eye of the Storm</span>: When using an ability that cost mana, call forth a bolt of lightning that strikes a nearby random enemy target, the lightning bolt bounces up to <span style="color:#00ff00">8</span> times, dealing <span style="color:#ff0000">1000</span> damage on the primary target. Each jump deals <span style="color:#ff0000">10% </span>less damage <span style="color:#00ff00">(5 Seconds Cooldown)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Flame Serpent",
+                        "components": ["Staff of Brilliance", "Fan of Endless Flow", "Heart of the Phoenix"],
+                        "text": `<span style="color:#ff0000">(Tier 2 Unique Divine)</span></span></span><br>Intelligence: +40<br>Mana Regeneration Rate: +50%<br>Mana Regeneration: +6<br>Health Regeneration: +6<br>Health: +400<br><span style="color:#00ffff">Item Passive - World In Flames:</span> Grants a <span style="color:#00ff00">33%</span> chance when using an ability that spends mana, to summon a Flame Serpent for <span style="color:#00ff00">12</span> seconds that deals <span style="color:#ff0000">100</span> damage + <span style="color:#8080ff">(2 damage per point of Intelligence)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Amaroq's Claw",
+                        "components": ["Beast Within", "Crimson Guard", "Obsidian Core"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span></span></span><br>All Attributes: +30<br>Attack Speed: +40%<br>Damage: +75<br>Strength: +10<br>Health: +150<br><span style="color:#00ffff">Item Passive - Amaroq's Feast:</span> Each consecutive attack against the same target deals <span style="color:#ff0000">50</span> bonus damage, stacking infinitely <span style="color:#ff0000">(Stacks are lost upon death)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Divinuas, Heaven's Vanguard",
+                        "components": ["Enigma", "Purified Bloodstone Helmet", "Indestructible"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span></span></span><br>All Attributes: +15<br>Attack Damage: +70<br>Health: +1500<br>Armor: +25<br><span style="color:#00ffff">Item Passive - Heaven's Vanguard:</span> The wielder takes <span style="color:#00ff00">128</span> less damage from enemy attacks, and restores <span style="color:#00ff00">100</span> health whenever they attack or are struck in combat.<br><span style="color:#00ffff">Item Activation - Eternal Protector:</span> Call upon the mighty powers from above, granting all nearby allies Imperviousness to damage for a short duration.<br><br><span style="color:#955d8b">"The name shall be continued as long as the sun"</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Kronos, Bane of the Cosmos",
+                        "components": ["Nebula Key", "Oblivion Spike", "Scepter of Power"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span></span></span><br>Intelligence: +125<br>Health: +600<br>Mana Regeneration: +5<br>Mana Regeneration Rate: +50%<br><span style="color:#00ffff">Item Activation - Deconstruction:</span> Deal <span style="color:#ff0000">7500</span> damage + <span style="color:#8080ff">(30 damage per point of Intelligence)</span> to an enemy target.<br><span style="color:#00ffff">Item Passive - Absorb:</span> Casting <span style="color:#00ffff">Deconstruction</span> increases your Intelligence by <span style="color:#8080ff">+50</span> for <span style="color:#00ff00">20</span> seconds, if the target is killed by <span style="color:#00ffff">Deconstruction</span> increase this bonus to <span style="color:#8080ff">+100</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Moonsplitter, Infinite Eclipse",
+                        "components": ["Crystal of Unleashed Power", "Phoenix Talon", "Moonreaver"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span></span></span><br>Intelligence +70<br>Agility: +20<br>Attack Damage: +25<br>Mana Regeneration: +10<br>Mana Regeneration Rate: +50%<br>Mana: +500<br>Health: +300<br></span><span style="color:#00ffff">Item Passive - Power Unleashed:</span> Your attacks deal <span style="color:#8080ff">10%</span> of your maximum mana as bonus damage and restores <span style="color:#8080ff">1%</span> maximum mana.<br><span style="color:#00ffff">Item Activation - Eclipse:</span> For <span style="color:#00ff00">30</span> seconds, every <span style="color:#00ff00">5th</span> attack deals an additional <span style="color:#ff0000">500</span> damage and spends <span style="color:#8080ff">20%</span> of current mana to deal it as bonus damage`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Pyrrhic Victory",
+                        "components": ["Spear of Hate", "Warlord's Crown", "Trident of Wrath"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span></span></span><br>Strength: +50<br>Agility: +45<br>Attack Damage: +40<br>Health: +300<br><span style="color:#00ffff">Item Passive - Annihilation:</span> Attacks deal <span style="color:#ff0000">50</span> bonus damage + <span style="color:#d45e19">(1 damage per point of Strength or Agility the wielder has - Whichever is highest)</span><br><span style="color:#00ffff">Item Passive - Pyrrhic Victory:</span> Whenever an allied hero dies, gain <span style="color:#00ff00">100%</span> increased attack and movement speed for <span style="color:#00ff00">30</span> seconds and double the effect of <span style="color:#00ffff">Annihilation</span> for the duration.<br><span style="color:#00ffff">Item Passive - Glory:</span> Every <span style="color:#00ff00">3rd</span> enemy killed in the Wielder's vicinity grants <span style="color:#ff0000">1</span> permanent bonus attack damage</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Shard of the Sun",
+                        "components": ["Phantom Piercer", "Manticore Throwing Knives", "Phoenix Talon"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span><br>Agility: +65<br>Intelligence: +35<br>Attack Speed: +45%<br>Attack Damage: +35<br>Mana Regeneration: +4<br>Movement Speed: +50<br><span style="color:#00ffff">Item Passive - Precision:</span> Attacks that hit enemies from <span style="color:#00ff00">+300</span> range deals <span style="color:#00ff00">80%</span> increased base damage<br><span style="color:#00ffff">Item Passive - Sun Barrage:</span> Attacks from <span style="color:#00ff00">+300</span> range has a <span style="color:#00ff00">5%</span> chance to fire a Sun Barrage at the location of the attacked target, stunning enemies hit for <span style="color:#00ff00">1</span> second and dealing <span style="color:#ff0000">1000</span> damage + <span style="color:#80ff80">(10 damage per Agility or Intelligence - Whichever is highest)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Soulreaper",
+                        "components": ["The Impaler", "Liquid Bloodstone", "Obsidian Core"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span><br>All Attributes: +30<br>Health: -600<br>Attack Speed: +25%<br>Strength: +30<br>Agility: +10<br>Mana Regeneration: +4<br><span style="color:#00ffff">Passive Orb Effect - Lifesteal:</span> Attacks restores <span style="color:#00ff00">20%</span> of the damage dealt as health<br><span style="color:#00ffff">Item Passive - Soulreap:</span> Grants a <span style="color:#00ff00">20%</span> chance on attacks to reap nearby enemies, dealing <span style="color:#ff0000">500</span> damage + <span style="color:#808000">(5 damage per point of Strength or Agility - Whichever is highest)</span> and restoring health equal to <span style="color:#00ff00">20%</span> of the damage done by Soulreap. If an enemy is killed by <span style="color:#00ffff">Soulreap</span> the wielder gains <span style="color:#00ff00">10</span> bonus maximum health <span style="color:#00ff00">(1 Second Cooldown)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "The Divine Hand",
+                        "components": ["Mana Core", "Equilibrium", "Pristine Holy Essence"],
+                        "text": `<span style="color:#ff0000">(Tier 3 Unique Divine)</span></span></span><br>Intelligence: +70<br>Mana: +700<br>Health: +300<br>Mana Regeneration Rate: +100%<br>Health Regeneration: +20<br><span style="color:#00ffff">Item Passive - Pious:</span> Grants <span style="color:#8080ff">40</span> Increased Mana Regeneration to nearby allies.<br><span style="color:#00ffff">Item Passive - Mana Recharge:</span> After using an ability that spends mana, the wielder restores <span style="color:#8080ff">100</span> mana<br><span style="color:#00ffff">Item Activation - The Divine Hand:</span> Restores <span style="color:#00ff00">1000</span> health + <span style="color:#8080ff">(6 healing per Intelligence the wielder has)</span> and <span style="color:#8080ff">500</span> mana + <span style="color:#8080ff">(3 mana per Intelligence the wielder has)</span> to all nearby allies`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Realm Edge",
+                        "components": ["Swampstalker's Grasp", "Iaijutsu", "Ghost Lotus"],
+                        "text": `<span style="color:#ff0000">(Tier 4 Unique Divine)</span><br>Agility: +125<br>Attack Damage: +50<br>Mana: +800<br>Mana Regeneration: +10<br><span style="color:#00ffff">Item Passive - Realm Shift:</span> Theres a <span style="color:#00ff00">25%</span> chance when casting an ability to gain <span style="color:#00ffff">Realm Shift</span>, granting <span style="color:#00ff00">50%</span> Evasion and <span style="color:#00ff00">25%</span> Crit Chance for <span style="color:#00ff00">10</span> seconds<br><span style="color:#00ffff">Item Passive - Unleash Realmwyrm:</span> If the Wielder of this weapon has atleast <span style="color:#00ff00">275</span> Agility, your attacks have a chance to summon the <span style="color:#00ffff">Realmwyrm</span> while affected by <span style="color:#00ffff">Realm Shift</span> <span style="color:#00ff00">(90 Seconds Cooldown)</span>`,
+                        "position": [-10, -10]
+                    },
+                    {
+                        "name": "Untamed Rage",
+                        "components": [],
+                        "text": `<span style="color:#ff0000">(Tier 4 Unique Divine)</span><br><br><br><span style="color:#00ffff">Item Passive - Godly Rage:</span> Your attacks have a chance to grant you <span style="color:#ff0000">250</span> Strength for <span style="color:#00ff00">16</span> seconds.`,
+                        "position": [-10, -10]
+                    }
+                ];
+            }
+        </script>
+    </head>
+    <body>
+        <div id="network"></div>
+        <div id="tooltip"></div>
+        <input id="input" type="text" placeholder="Search by Name or Stat..." />
+        <script>
+            // Turn items into nodes and edges.
+            const nodes = [];
+            const edges = [];
+            itemList.forEach(item => {
+                nodes.push({
+                    id: item.name,
+                    borderWidth: 5,
+                    borderWidthSelected: 5,
+                    color: {
+                        background: item.text.substring(19, 26),
+                        border: item.text.substring(19, 26),
+                        highlight: {
+                            background: item.text.substring(19, 26),
+                            border: '#fed312',
+                        },
+                        hover: {
+                            background: item.text.substring(19, 26),
+                            border: '#fed312',
+                        },
+                    },
+                    fixed: (item.position[0] < 0 && item.position[1] < 0) ? false : true,
+                    font: {
+                        color: '#ffffff',
+                        face: 'arial',
+                    },
+                    label: item.name,
+                    shape: "dot",
+                    size: 30,
+                    x: item.position[0],
+                    y: item.position[1]
+                });
+                item.components.forEach(component => {
+                    edges.push({
+                        from: component,
+                        to: item.name,
+                        arrows: { to: { enabled: true, } },
+                        width: 5
+                    });
+                });
+            });
+
+            // Display the network.
+            const container = document.getElementById("network");
+            const options = {
+                edges: { smooth: false },
+                interaction: { hover: true },
+                physics: {
+                    enabled: true,
+                    barnesHut: {
+                        gravitationalConstant: -10000,
+                        springLength: 100,
+                        springConstant: 0.01,
+                        damping: 0.01,
+                        avoidOverlap: 1000
+                    },
+                }
+            };
+            const data = {
+                nodes: new vis.DataSet(nodes),
+                edges: new vis.DataSet(edges)
+            };
+            const network = new vis.Network(container, data, options);
+
+            // Manage tooltip.
+            const tooltip = document.getElementById('tooltip');
+            network.on('hoverNode', function(params) {
+                tooltip.innerHTML = "<u>" + itemList.find(i => i.name === params.node).name + "</u><br>" + itemList.find(i => i.name === params.node).text;
+                tooltip.style.display = 'block';
+            });
+            network.on('blurNode', function(params) {
+                tooltip.style.display = 'none';
+            });
+            container.addEventListener('mousemove', (event) => {
+                tooltip.style.left = event.clientX + 10 + 'px';
+                tooltip.style.top = event.clientY + 10 + 'px';
+            });
+
+            // Manage search.
+            document.getElementById("input").value = "";
+            document.getElementById("input").addEventListener("input", () => {
+                itemList.forEach(item => {
+                    if (input.value!=""
+                    && (item.text.toLowerCase().includes(input.value.toLowerCase())
+                    || item.name.toLowerCase().includes(input.value.toLowerCase()))) {
+                        network.body.data.nodes.update({
+                            id: item.name,
+                            color: { border: '#fed312' }
+                        });
+                    } else {
+                        network.body.data.nodes.update({
+                            id: item.name,
+                            color: { border: item.text.substring(19, 26) }
+                        });
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
