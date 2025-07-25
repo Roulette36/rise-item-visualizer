@@ -34,6 +34,21 @@
                 z-index: 2;
                 padding: 5px;
             }
+            #instructions {
+                position: absolute;
+                top: 50px;
+                left: 10px;
+                z-index: 2;
+                background-color: rgba(34, 34, 34, 0.85);
+                color: #ffffff;
+                font-family: 'Arial', sans-serif;
+                font-size: 14px;
+                padding: 10px;
+                max-width: 280px;
+                line-height: 1.4;
+                border-radius: 8px;
+                pointer-events: none;
+            }
         </style>
         <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
         <script>
@@ -1349,7 +1364,14 @@
     <body>
         <div id="network"></div>
         <div id="tooltip"></div>
-        <input id="input" type="text" placeholder="Search by Name or Stat..." />
+        <input id="input" type="text" placeholder="Search by Name or Stat..." />        
+        <div id="instructions">
+            <strong>How to use:</strong><br>
+            • Hover over nodes to view item details.<br>
+            • Use the search box to highlight items by name or stats.<br>
+            • Edges represent components used to build more complex items.<br>
+            • Drag nodes to reposition them manually.
+        </div>
         <script>
             // Turn items into nodes and edges.
             const nodes = [];
