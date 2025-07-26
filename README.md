@@ -7,11 +7,15 @@ The map and its content (including item names and mechanics) belong to Rel!chunt
 This file is just a fan-made tool to visualize part of it.
 
 ---
-🛠 Tech Used
+PAGE
+- No downloads needed, just [click here](https://roulette36.github.io/rise-item-visualizer/) to use it.
+
+---
+TECH
 - HTML + JavaScript.
 - [vis-network](https://visjs.github.io/vis-network/) for graph rendering and interactivity.
 - No backend, no dependencies — 100% client-side.
 
 ---
-📄 License
-This project is public domain: you can modify, share, or adapt it however you like.
+LICENSE
+- This project is public domain: you can modify, share, or adapt it however you like.
